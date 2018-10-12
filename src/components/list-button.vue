@@ -1,115 +1,86 @@
-<template>
-  <li>
-    <a v-if="title"
-      class="item-link list-button"
-      :href="(typeof link !== 'string' ? '#' : link)"
-      :class="classesObject"
-      :data-panel="typeof openPanel === 'string' ? openPanel : false"
-      :data-popup="typeof openPopup === 'string' ? openPopup : false"
-      :data-popover="typeof openPopover === 'string' ? openPopover : false"
-      :data-picker="typeof openPicker === 'string' ? openPicker : false"
-      :data-login-screen="typeof openLoginScreen === 'string' ? openLoginScreen : false"
-      :data-sortable="typeof openSortable === 'string' ? openSortable : (typeof toggleSortable === 'string' ? toggleSortable : false)"
-      :data-tab="typeof tabLink === 'string' ? tabLink : false"
-      v-html="title"
-      ></a>
-    <a v-else
-      class="item-link list-button"
-      :href="(typeof link !== 'string' ? '#' : link)"
-      :class="classesObject"
-      :data-panel="typeof openPanel === 'string' ? openPanel : false"
-      :data-popup="typeof openPopup === 'string' ? openPopup : false"
-      :data-popover="typeof openPopover === 'string' ? openPopover : false"
-      :data-picker="typeof openPicker === 'string' ? openPicker : false"
-      :data-login-screen="typeof openLoginScreen === 'string' ? openLoginScreen : false"
-      :data-sortable="typeof openSortable === 'string' ? openSortable : (typeof toggleSortable === 'string' ? toggleSortable : false)"
-      :data-tab="typeof tabLink === 'string' ? tabLink : false"
-      ><slot></slot></a>
-  </li>
-</template>
 <script>
-  export default {
-    props: {
-      'title': [String, Number],
-      'link': [String, Boolean],
-      'external': Boolean,
-      'link-external': Boolean,
-      'back': Boolean,
+  import Utils from '../utils/utils';
+  import Mixins from '../utils/mixins';
 
-      // View
-      view: String,
-
-      // Panel
-      openPanel: [String, Boolean],
-      closePanel: Boolean,
-
-      // Popup
-      openPopup: [String, Boolean],
-      closePopup: Boolean,
-
-      // Popover
-      openPopover: [String, Boolean],
-      closePopover: Boolean,
-
-      // Login Screen
-      openLoginScreen: [String, Boolean],
-      closeLoginScreen: Boolean,
-
-      // Picker
-      openPicker: [String, Boolean],
-      closePicker: Boolean,
-
-      // Tab
+  const ListButtonProps = Utils.extend(
+    {
+      noFastclick: Boolean,
+      noFastClick: Boolean,
+      title: [String, Number],
+      text: [String, Number],
       tabLink: [Boolean, String],
-
-      // Sortable
-      openSortable: [String, Boolean],
-      closeSortable: Boolean,
-      toggleSortable: [String, Boolean],
+      tabLinkActive: Boolean,
+      link: [Boolean, String],
+      href: [Boolean, String],
+      target: String,
     },
+    Mixins.colorProps,
+    Mixins.linkRouterProps,
+    Mixins.linkActionsProps
+  );
+
+  export default {
+    name: 'f7-list-button',
+    render(c) {
+      const self = this;
+      const linkEl = c('a', {
+        staticClass: 'item-link list-button',
+        attrs: self.attrs,
+        class: self.classes,
+        on: {
+          click: self.onClick,
+        },
+      }, [self.title || self.text, self.$slots.default]);
+      return c('li', {}, [linkEl]);
+    },
+    props: ListButtonProps,
     computed: {
-      classesObject: function () {
-        var self = this;
-        var co = {
-          'external': self.external || self.linkExternal,
-          'back': self.back
-        };
+      attrs() {
+        const self = this;
+        // Link Props
+        const {
+          link,
+          href,
+          target,
+          tabLink,
+        } = self;
 
-        // Panel
-        if (self.closePanel) co['close-panel'] = true;
-        if (self.openPanel) co['open-panel'] = true;
+        return Utils.extend(
+          {
+            href: ((typeof link === 'boolean' && typeof href === 'boolean') ? '#' : (link || href)),
+            target,
+            'data-tab': Utils.isStringProp(tabLink) && tabLink,
+          },
+          Mixins.linkRouterAttrs(self),
+          Mixins.linkActionsAttrs(self)
+        );
+      },
+      classes() {
+        const self = this;
 
-        // Popup
-        if (self.closePopup) co['close-popup'] = true;
-        if (self.openPopup) co['open-popup'] = true;
+        const {
+          noFastclick,
+          noFastClick,
+          tabLink,
+          tabLinkActive,
+        } = self;
 
-        // Popover
-        if (self.closePopover) co['close-popover'] = true;
-        if (self.openPopover) co['open-popover'] = true;
-
-        // Picker
-        if (self.closePicker) co['close-picker'] = true;
-        if (self.openPicker) co['open-picker'] = true;
-
-        // Login Screen
-        if (self.closeLoginScreen) co['close-login-screen'] = true;
-        if (self.openLoginScreen) co['open-login-screen'] = true;
-
-        // Sortable
-        if (self.closeSortable) co['close-sortable'] = true;
-        if (self.openSortable) co['open-sortable'] = true;
-        if (self.toggleSortable) co['toggle-sortable'] = true;
-
-        // Tab
-        if (self.tabLink) co['tab-link'] = true;
-
-        return co;
-      }
+        return Utils.extend(
+          {
+            'tab-link': tabLink || tabLink === '',
+            'tab-link-active': tabLinkActive,
+            'no-fastclick': noFastclick || noFastClick,
+          },
+          Mixins.colorClasses(self),
+          Mixins.linkRouterClasses(self),
+          Mixins.linkActionsClasses(self)
+        );
+      },
     },
     methods: {
-      onClick: function (event) {
-        this.$emit('click', event)
-      }
-    }
-  }
+      onClick(event) {
+        this.$emit('click', event);
+      },
+    },
+  };
 </script>

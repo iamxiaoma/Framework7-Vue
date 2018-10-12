@@ -1,239 +1,280 @@
 <script>
+  import Utils from '../utils/utils';
+  import f7ListItemContent from './list-item-content.vue';
+  import Mixins from '../utils/mixins';
+
+  const ListItemProps = Utils.extend(
+    {
+      title: [String, Number],
+      text: [String, Number],
+      media: String,
+      subtitle: [String, Number],
+      header: [String, Number],
+      footer: [String, Number],
+
+      // Link Props
+      link: [Boolean, String],
+      target: String,
+      noFastclick: Boolean,
+      noFastClick: Boolean,
+
+      after: [String, Number],
+      badge: [String, Number],
+      badgeColor: String,
+
+      mediaItem: Boolean,
+      mediaList: Boolean,
+      divider: Boolean,
+      groupTitle: Boolean,
+      swipeout: Boolean,
+      sortable: Boolean,
+      accordionItem: Boolean,
+      accordionItemOpened: Boolean,
+
+      // Smart Select
+      smartSelect: Boolean,
+      smartSelectParams: Object,
+
+      // Inputs
+      checkbox: Boolean,
+      radio: Boolean,
+      checked: Boolean,
+      name: String,
+      value: [String, Number, Array],
+      readonly: Boolean,
+      required: Boolean,
+      disabled: Boolean,
+      itemInput: Boolean,
+      itemInputWithInfo: Boolean,
+      inlineLabel: Boolean,
+    },
+    Mixins.colorProps,
+    Mixins.linkRouterProps,
+    Mixins.linkActionsProps
+  );
+
   export default {
-    render: function (c) {
-      var liChildren, linkEl, itemContentEl;
-      var self = this;
+    name: 'f7-list-item',
+    components: {
+      f7ListItemContent,
+    },
+    props: ListItemProps,
+    render(c) {
+      const self = this;
 
-      // Item Content
-      itemContentEl = c('f7-list-item-content', {
-        props: {
-          'title': self.title,
-          'text': self.text,
-          'media': self.media,
-          'subtitle': self.subtitle,
-          'after': self.after,
-          'badge': self.badge,
-          'badge-color': self.badgeColor,
-          'media-list': self.mediaListComputed,
-          'accordion-item': self.accordionItem,
+      let liChildren;
+      let linkEl;
+      let itemContentEl;
 
-          'checkbox': self.checkbox,
-          'checked': self.checked,
-          'radio': self.radio,
-          'name': self.name,
-          'value': self.value,
-          'readonly': self.readonly,
-          'required': self.required,
-          'disabled': self.disabledn
-        },
-        on: (self.link || self.accordionItem || self.smartSelect) ? {} : {click: self.onClick, change: self.onChange}
-      }, [self.$slots.content, self.$slots.media, self.$slots.inner, self.$slots.after, self.$slots.default]);
+      if (!self.simpleListComputed) {
+        // Item Content
+        itemContentEl = c('f7-list-item-content', {
+          props: {
+            title: self.title,
+            text: self.text,
+            media: self.media,
+            subtitle: self.subtitle,
+            after: self.after,
+            header: self.header,
+            footer: self.footer,
+            badge: self.badge,
+            badgeColor: self.badgeColor,
+            mediaList: self.mediaListComputed,
+            accordionItem: self.accordionItem,
 
-      // Link
-      if (self.link || self.accordionItem || self.smartSelect) {
-        linkEl = c('a', {
-          attrs: {
-            href: self.link === true || self.accordionItem || self.smartSelect ? '#' : self.link,
-            'data-searchbar': self.smartSelectSearchbar,
-            'data-searchbar-paceholder': self.smartSelectSearchbarPlaceholder,
-            'data-searchbar-cancel': self.smartSelectSearchbarCancel,
-            'data-page-title': self.smartSelectPageTitle,
-            'data-back-text': self.smartSelectBackText,
-            'data-back-on-select': self.smartSelectBackOnSelect,
-            'data-virtual-list': self.smartSelectVirtualList,
-            'data-virtual-list-height': self.smartSelectVirtualListHeight,
-            'data-open-in': self.smartSelectOpenIn,
-            'data-navbar-theme': self.smartSelectNavbarTheme,
-            'data-form-theme': self.smartSelectFormTheme,
-
-            'data-view': typeof self.linkView === 'string' ? self.linkView : false,
-            'data-panel': typeof self.linkOpenPanel === 'string' ? self.linkOpenPanel : false,
-            'data-popup': typeof self.linkOpenPopup === 'string' ? self.linkOpenPopup : false,
-            'data-popover': typeof self.linkOpenPopover === 'string' ? self.linkOpenPopover : false,
-            'data-picker': typeof self.linkOpenPicker === 'string' ? self.linkOpenPicker : false,
-            'data-login-screen': typeof self.linkOpenLoginScreen === 'string' ? self.linkOpenLoginScreen : false,
-            'data-sortable': typeof self.linkOpenSortable === 'string' ? self.linkOpenSortable : (typeof self.linkToggleSortable === 'string' ? self.linkToggleSortable : false),
-
-            'data-force': self.linkForce,
-            'data-reload': self.linkReload,
-            'data-animate-pages': self.linkAnimatePages,
-            'data-ignore-cache': self.linkIgnoreCache,
-            'data-page-name': typeof self.linkPageName === 'string' ? self.linkPageName : false,
-            'data-template': typeof self.linkTemplate === 'string' ? self.linkTemplate : false,
+            checkbox: self.checkbox,
+            checked: self.checked,
+            radio: self.radio,
+            name: self.name,
+            value: self.value,
+            readonly: self.readonly,
+            required: self.required,
+            disabled: self.disabled,
+            itemInput: self.itemInput || self.itemInputForced,
+            itemInputWithInfo: self.itemInputWithInfo || self.itemInputWithInfoForced,
+            inlineLabel: self.inlineLabel || self.inlineLabelForced,
           },
-          'class': {
-            'item-link': true,
-            'external': self.linkExternal,
-            'smart-select': self.smartSelect,
-            'close-panel': self.linkClosePanel,
-            'open-panel': self.linkOpenPanel,
-            'close-popup': self.linkClosePopup,
-            'open-popup': self.linkOpenPopup,
-            'close-popover': self.linkClosePopover,
-            'open-popover': self.linkOpenPopover,
-            'close-picker': self.linkClosePicker,
-            'open-picker': self.linkOpenPicker,
-            'close-login-screen': self.linkCloseLoginScreen,
-            'open-login-screen': self.linkOpenLoginScreen,
-            'close-sortable': self.linkCloseSortable,
-            'open-sortable': self.linkOpenSortable,
-            'toggle-sortable': self.linkToggleSortable,
-          },
-          on: {
-            click: self.onClick
-          }
-        }, [itemContentEl])
-      }
+          on: (self.link || self.href || self.accordionItem || self.smartSelect) ? {} : { click: self.onClick, change: self.onChange },
+        }, [
+          self.$slots['content-start'],
+          self.$slots.content,
+          self.$slots['content-end'],
+          self.$slots.media,
+          self.$slots['inner-start'],
+          self.$slots.inner,
+          self.$slots['inner-end'],
+          self.$slots['after-start'],
+          self.$slots.after,
+          self.$slots['after-end'],
+          self.$slots.header,
+          self.$slots.footer,
+          self.$slots['before-title'],
+          self.$slots.title,
+          self.$slots['after-title'],
+          self.$slots.subtitle,
+          self.$slots.text,
+          (self.swipeout || self.accordionItem ? [] : self.$slots.default),
+        ]);
 
-      if (self.dividerOrGroupTitle) {
-        liChildren = [c('span', self.$slots.default || self.title)]
-      }
-      else {
-        var linkItemEl = (self.link || self.smartSelect || self.accordionItem) ? linkEl : itemContentEl;
-        if (self.swipeout) {
-          liChildren = [c('div', {'class':{'swipeout-content': true}}, [linkItemEl])]
+        // Link
+        if (self.link || self.href || self.accordionItem || self.smartSelect) {
+          linkEl = c('a', {
+            attrs: Utils.extend(
+              {
+                href: self.link === true || self.accordionItem || self.smartSelect ? '#' : self.link || self.href,
+                target: self.target,
+              },
+              Mixins.linkRouterAttrs(self),
+              Mixins.linkActionsAttrs(self)
+            ),
+            class: Utils.extend(
+              {
+                'item-link': true,
+                'no-fastclick': self.noFastclick || self.noFastClick,
+                'smart-select': self.smartSelect,
+              },
+              Mixins.linkRouterClasses(self),
+              Mixins.linkActionsClasses(self)
+            ),
+            on: {
+              click: self.onClick,
+            },
+          }, [itemContentEl]);
         }
-        else {
+      }
+
+      if (self.divider || self.groupTitle) {
+        liChildren = [c('span', self.$slots.default || self.title)];
+      } else if (self.simpleListComputed) {
+        liChildren = [self.title, self.$slots.default];
+      } else {
+        const linkItemEl = (self.link || self.href || self.smartSelect || self.accordionItem) ? linkEl : itemContentEl;
+        if (self.swipeout) {
+          liChildren = [c('div', { class: { 'swipeout-content': true } }, [linkItemEl])];
+        } else {
           liChildren = [linkItemEl];
         }
         if (self.sortableComputed) {
-          liChildren.push(c('div', {'class': {'sortable-handler': true}}));
+          liChildren.push(c('div', { class: { 'sortable-handler': true } }));
         }
         if (self.swipeout || self.accordionItem) {
           liChildren.push(self.$slots.default);
         }
+        liChildren.unshift(self.$slots['root-start']);
         liChildren.push(self.$slots.root);
+        liChildren.push(self.$slots['root-end']);
       }
 
       return c(
         'li',
         {
-          'class': {
-            'item-divider' : self.divider,
-            'list-group-title': self.groupTitle,
-            'swipeout': self.swipeout,
-            'accordion-item': self.accordionItem
-          },
+          class: Utils.extend(
+            {
+              'item-divider': self.divider,
+              'list-group-title': self.groupTitle,
+              'media-item': self.mediaItem,
+              swipeout: self.swipeout,
+              'accordion-item': self.accordionItem,
+              'accordion-item-opened': self.accordionItemOpened,
+            },
+            Mixins.colorClasses(self)
+          ),
           on: {
-            open: self.onOpen,
-            opened: self.onOpened,
-            close: self.onClose,
-            closed: self.onClosed,
-            delete: self.onDelete,
-            deleted: self.onDeleted,
-            swipeout: self.onSwipeout
-          }
+            'swipeout:open': self.onSwipeoutOpen,
+            'swipeout:opened': self.onSwipeoutOpened,
+            'swipeout:close': self.onSwipeoutClose,
+            'swipeout:closed': self.onSwipeoutClosed,
+            'swipeout:delete': self.onSwipeoutDelete,
+            'swipeout:deleted': self.onSwipeoutDeleted,
+            swipeout: self.onSwipeout,
+            'accordion:open': self.onAccOpen,
+            'accordion:opened': self.onAccOpened,
+            'accordion:close': self.onAccClose,
+            'accordion:closed': self.onAccClosed,
+          },
         },
         liChildren
-      )
+      );
     },
-    props: {
-      'title': [String, Number],
-      'text': [String, Number],
-      'media': String,
-      'subtitle': [String, Number],
-
-      // Link Props
-      'link': [String, Boolean],
-      'link-external': Boolean,
-
-      'link-force': Boolean,
-      'link-reload': Boolean,
-      'link-animate-pages': Boolean,
-      'link-ignore-cache': Boolean,
-      'link-page-name': String,
-      'link-template': String,
-
-      'link-view': String,
-      'link-open-panel': [String, Boolean],
-      'link-close-panel': Boolean,
-      'link-open-popup': [String, Boolean],
-      'link-close-popup': Boolean,
-      'link-open-popover': [String, Boolean],
-      'link-close-popover': Boolean,
-      'link-open-login-screen': [String, Boolean],
-      'link-close-login-screen': Boolean,
-      'link-open-picker': [String, Boolean],
-      'link-close-picker': Boolean,
-
-      'after': [String, Number],
-      'badge': [String, Number],
-      'badge-color': String,
-      'media-item': Boolean,
-      'media-list-item': Boolean,
-      'media-list': Boolean,
-      'media-list-computed': Boolean,
-      'divider': Boolean,
-      'group-title': Boolean,
-      'divider-or-group-title': Boolean,
-      'swipeout': Boolean,
-      'sortable': Boolean,
-      'sortable-computed': Boolean,
-      'accordion-item': Boolean,
-
-      // Smart Select
-      'smart-select': Boolean,
-      'smart-select-searchbar': Boolean,
-      'smart-select-searchbar-paceholder': String,
-      'smart-select-searchbar-cancel': String,
-      'smart-select-page-title': String,
-      'smart-select-back-text': String,
-      'smart-select-back-on-select': Boolean,
-      'smart-select-virtual-list': Boolean,
-      'smart-select-virtual-list-height': Number,
-      'smart-select-open-in': String, //popup or picker or page
-      'smart-select-navbar-theme': String,
-      'smart-select-form-theme': String,
-
-      // Inputs
-      'checkbox': Boolean,
-      'checked': Boolean,
-      'radio': Boolean,
-      'name': String,
-      'value': [String, Number],
-      'readonly': Boolean,
-      'required': Boolean,
-      'disabled': Boolean
+    data() {
+      return {
+        itemInputForced: false,
+        inlineLabelForced: false,
+        itemInputWithInfoForced: false,
+      };
     },
     computed: {
-      dividerOrGroupTitle: function () {
-        return this.divider || this.groupTitle;
-      },
-      sortableComputed: function () {
+      sortableComputed() {
         return this.sortable || this.$parent.sortable || this.$parent.sortableComputed;
       },
-      mediaListComputed: function () {
+      mediaListComputed() {
         return this.mediaList || this.mediaItem || this.$parent.mediaList || this.$parent.mediaListComputed;
+      },
+      simpleListComputed() {
+        return this.simpleList || this.$parent.simpleList || (this.$parent.$parent && this.$parent.simpleList);
+      },
+    },
+    beforeDestroy() {
+      const self = this;
+      if (self.smartSelect && self.f7SmartSelect) {
+        self.f7SmartSelect.destroy();
       }
     },
     methods: {
-      onClick: function (event) {
-        this.$emit('click', event)
+      onF7Ready(f7) {
+        const self = this;
+        if (!self.smartSelect) return;
+        const smartSelectParams = Utils.extend({ el: self.$el.querySelector('a.smart-select') }, (self.smartSelectParams || {}));
+        self.f7SmartSelect = f7.smartSelect.create(smartSelectParams);
       },
-      onDeleted: function (event) {
-        this.$emit('deleted', event)
+      onClick(event) {
+        const self = this;
+        if (self.smartSelect && self.f7SmartSelect) {
+          self.f7SmartSelect.open();
+        }
+        if (event.target.tagName.toLowerCase() !== 'input') {
+          self.$emit('click', event);
+        }
       },
-      onDelete: function (event) {
-        this.$emit('delete', event)
+      onSwipeoutDeleted(event) {
+        this.$emit('swipeout:deleted', event);
       },
-      onClose: function (event) {
-        this.$emit('close', event)
+      onSwipeoutDelete(event) {
+        this.$emit('swipeout:delete', event);
       },
-      onClosed: function (event) {
-        this.$emit('closed', event)
+      onSwipeoutClose(event) {
+        this.$emit('swipeout:close', event);
       },
-      onOpen: function (event) {
-        this.$emit('open', event)
+      onSwipeoutClosed(event) {
+        this.$emit('swipeout:closed', event);
       },
-      onOpened: function (event) {
-        this.$emit('opened', event)
+      onSwipeoutOpen(event) {
+        this.$emit('swipeout:open', event);
       },
-      onSwipeout: function (event) {
-        this.$emit('swipeout', event)
+      onSwipeoutOpened(event) {
+        this.$emit('swipeout:opened', event);
       },
-      onChange: function (event) {
-        this.$emit('change', event)
-      }
-    }
-  }
+      onSwipeout(event) {
+        this.$emit('swipeout', event);
+      },
+      onAccClose(event) {
+        this.$emit('accordion:close', event);
+      },
+      onAccClosed(event) {
+        this.$emit('accordion:closed', event);
+      },
+      onAccOpen(event) {
+        this.$emit('accordion:open', event);
+      },
+      onAccOpened(event) {
+        this.$emit('accordion:opened', event);
+      },
+      onChange(event) {
+        this.$emit('change', event);
+      },
+      onInput(event) {
+        this.$emit('input', event);
+      },
+    },
+  };
 </script>

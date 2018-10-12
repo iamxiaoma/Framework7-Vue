@@ -1,46 +1,17 @@
 <a href="https://www.patreon.com/vladimirkharlampidi"><img src="https://cdn.framework7.io/i/support-badge.png" height="20"></a>
-[![devDependency Status](https://david-dm.org/nolimits4web/framework7-vue/dev-status.svg)](https://david-dm.org/nolimits4web/framework7-vue#info=devDependencies)
 
-# Framework7 + Vue
+# ⛔️ DEPRECATED
 
-This plugin provides set of F7 components converted to Vue components, including router and extended F7 API.
+<em>**This repo is deprecated and not mainted any more. Framework7-Vue development moved to main [Framework7 repository](https://github.com/framework7io/framework7). Please, don't open new issues and don't send any PRs to this repository**</em>
 
-To use this plugin include `framework-vue.min.js` script from `dist/` folder to your document in addition to F7 core script and styles and call the following script before you mount the app:
+# Framework7 Vue
 
-```js
-Vue.use(Framework7Vue)
-```
+Framework7 Vue combines power and simplicity of great Vue.js framework with flexibility and UI of Framework7 mobile framework to build mobile apps in even more easy and quick way.
 
-And when you init your Vue app you need to pass `framework7` parameter with F7 app parameters to init F7 as well:
+## Getting Started
+  * [Installation Guide](http://framework7.io/vue/installation.html)
+  * [Starter App Templates](http://framework7.io/vue/templates.html)
+  * [App Layout](http://framework7.io/vue/app-layout.html)
+  * [Initialize App](http://framework7.io/vue/init-app.html)
+  * [Navigation Router](http://framework7.io/vue/navigation-router.html)
 
-```js
-var app = new Vue({
-    // Root Element
-    el: '#app',
-    // Framework7 Parameters
-    framework7: {
-        root: '#app', //Should be same as app el
-        animateNavBackIcon: true,
-        routes: Routes,
-    },
-    // Custom App Methods
-    methods: {
-        //Callback method will be executed after F7 initialization
-        onF7Init: function () {
-          console.log('f7-init');
-        }
-    }
-});
-```
-
-## Kitchen Sink
-
-Install Dependencies
-```
-$ npm i
-```
-
-Start Kitchen Sink:
-```
-$ npm run dev
-```

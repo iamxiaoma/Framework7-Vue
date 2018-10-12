@@ -1,148 +1,179 @@
 <script>
+  import Utils from '../utils/utils';
+  import Mixins from '../utils/mixins';
+
+  const ListProps = Utils.extend(
+    {
+      inset: Boolean,
+      tabletInset: Boolean,
+      mediaList: Boolean,
+      sortable: Boolean,
+      sortableEnabled: Boolean,
+      accordionList: Boolean,
+      contactsList: Boolean,
+      simpleList: Boolean,
+      linksList: Boolean,
+
+      noHairlines: Boolean,
+      noHairlinesBetween: Boolean,
+      noHairlinesMd: Boolean,
+      noHairlinesBetweenMd: Boolean,
+      noHairlinesIos: Boolean,
+      noHairlinesBetweenIos: Boolean,
+
+      // Tab
+      tab: Boolean,
+      tabActive: Boolean,
+
+      // Form
+      form: Boolean,
+      formStoreData: Boolean,
+      inlineLabels: Boolean,
+
+      // Virtual List
+      virtualList: Boolean,
+      virtualListParams: Object,
+    },
+    Mixins.colorProps
+  );
+
   export default {
-    beforeDestroy: function () {
-      var self = this;
-      if (!(self.virtual && self.virtualInit && self.f7VirtualList)) return;
+    name: 'f7-list',
+    props: ListProps,
+    beforeDestroy() {
+      const self = this;
+      if (!(self.virtualList && self.f7VirtualList)) return;
       if (self.f7VirtualList.destroy) self.f7VirtualList.destroy();
     },
-    watch: {
-      virtualItems: function () {
-        // Items Updated
-        var self = this;
-        if (!(self.virtual && self.virtualInit && self.f7VirtualList)) return;
-        self.f7VirtualList.replaceAllItems(self.virtualItems);
-      },
-    },
-    render: function (c) {
-      var blockEl, blockChildren;
-      var self = this;
+    render(c) {
+      const self = this;
 
-      blockChildren = self.grouped ? self.$slots.default : c('ul', {}, self.$slots.default)
-      var outOfList = [], ulSlots = [];
+      const listChildren = [];
+      const ulChildren = self.$slots.list || [];
+
       if (self.$slots.default) {
-        for (var i = 0; i < self.$slots.default.length; i++) {
-          var tag = self.$slots.default[i].tag;
-          if (tag && !(tag == 'li' || tag.indexOf('list-item')>=0 || tag.indexOf('list-button')>=0)) {
-            outOfList.push(self.$slots.default[i]);
-          }
-          else {
-            ulSlots.push(self.$slots.default[i]);
+        for (let i = 0; i < self.$slots.default.length; i += 1) {
+          const tag = self.$slots.default[i].tag;
+          if (tag && !(tag === 'li' || tag.indexOf('list-item') >= 0 || tag.indexOf('list-button') >= 0)) {
+            listChildren.push(self.$slots.default[i]);
+          } else if (tag) {
+            ulChildren.push(self.$slots.default[i]);
           }
         }
       }
-      blockEl = c(
+      const blockEl = c(
         self.form ? 'form' : 'div',
         {
-          'class': {
-            'list-block': true,
-            'inset': self.inset,
-            'media-list': self.mediaList,
-            'sortable': self.sortable,
-            'accordion-list': self.accordion,
-            'contacts-block': self.contacts,
-            'virtual-list': self.virtual,
-            'tab': self.tab,
-            'active': self.active,
-            'no-hairlines': self.noHairlines,
-            'no-hairlines-between': self.noHairlinesBetween
-          },
+          staticClass: 'list',
+          class: Utils.extend(
+            {
+              inset: self.inset,
+              'tablet-inset': self.tabletInset,
+              'media-list': self.mediaList,
+              'simple-list': self.simpleList,
+              'links-list': self.linksList,
+              sortable: self.sortable,
+              'accordion-list': self.accordionList,
+              'contacts-list': self.contactsList,
+              'virtual-list': self.virtualList,
+              'sortable-enabled': self.sortableEnabled,
+              tab: self.tab,
+              'tab-active': self.tabActive,
+              'no-hairlines': self.noHairlines,
+              'no-hairlines-between': self.noHairlinesBetween,
+              'no-hairlines-md': self.noHairlinesMd,
+              'no-hairlines-between-md': self.noHairlinesBetweenMd,
+              'no-hairlines-ios': self.noHairlinesIos,
+              'no-hairlines-between-ios': self.noHairlinesBetweenIos,
+              'form-store-data': self.formStoreData,
+              'inline-labels': self.inlineLabels,
+            },
+            Mixins.colorClasses(self)
+          ),
           on: {
-            open: self.onOpen,
-            close: self.onClose,
-            sort: self.onSort
-          }
+            'sortable:enable': self.onSortableEnable,
+            'sortable:disable': self.onSortableDisable,
+            'sortable:sort': self.onSortableSort,
+            'tab:show': self.onTabShow,
+            'tab:hide': self.onTabHide,
+          },
         },
         [
-          ulSlots.length > 0 ? [c('ul', {}, ulSlots), outOfList] : outOfList
+          ulChildren.length > 0 ?
+            [
+              self.$slots['before-list'],
+              c('ul', {}, ulChildren),
+              self.$slots['after-list'],
+              listChildren,
+            ] :
+            [
+              self.$slots['before-list'],
+              listChildren,
+              self.$slots['after-list'],
+            ],
         ]
       );
       return blockEl;
     },
-    props: {
-      'inset': Boolean,
-      'media-list': Boolean,
-      'grouped': Boolean,
-      'sortable': Boolean,
-      'form': Boolean,
-      'label': String,
-      'accordion': Boolean,
-      'contacts': Boolean,
-
-      'no-hairlines': Boolean,
-      'no-hairlines-between': Boolean,
-
-      // Tab
-      'tab': Boolean,
-      'active': Boolean,
-
-      // Virtual List
-      'virtual': Boolean,
-      'virtual-init': {
-        type: Boolean,
-        default: true
-      },
-      'virtual-items': [Array, Object],
-      'virtual-height': [Number, Function],
-      'virtual-rows-before': Number,
-      'virtual-rows-after': Number,
-      'virtual-cols': {
-        type: Number,
-        default: 1
-      },
-      'virtual-cache': {
-        type: Boolean,
-        default: true
-      },
-      'virtual-filtered-only': {
-        type: Boolean,
-        default: false
-      },
-      'virtual-search-by-item': Function,
-      'virtual-search-all': Function,
-    },
     methods: {
-      onOpen: function (event) {
-        this.$emit('open', event)
+      onSortableEnable(event) {
+        this.$emit('sortable:enable', event);
       },
-      onClose: function (event) {
-        this.$emit('close', event)
+      onSortableDisable(event) {
+        this.$emit('sortable:disable', event);
       },
-      onSort: function (event) {
-        this.$emit('sort', event, event.detail)
+      onSortableSort(event) {
+        this.$emit('sortable:sort', event, event.detail);
       },
-      onF7Init: function (f7) {
-        var self = this;
+      onTabShow(e) {
+        this.$emit('tab:show', e);
+      },
+      onTabHide(e) {
+        this.$emit('tab:hide', e);
+      },
+      onF7Ready(f7) {
+        const self = this;
         // Init Virtual List
-        if (!(self.virtual && self.virtualInit)) return;
-        var $$ = self.$$;
-        var template = $$(self.$el).find('script').html();
-        if (!template) return;
-        template = self.$t7.compile(template);
+        if (!self.virtualList) return;
+        const $$ = self.$$;
+        const $el = $$(self.$el);
+        const templateScript = $el.find('script');
+        let template = templateScript.html();
+        if (!template && templateScript.length > 0) {
+          template = templateScript[0].outerHTML;
+          // eslint-disable-next-line
+          template = /\<script type="text\/template7"\>(.*)<\/script>/.exec(template)[1];
+        }
+        const vlParams = self.virtualListParams || {};
+        if (!template && !vlParams.renderItem && !vlParams.itemTemplate && !vlParams.renderExternal) return;
+        if (template) template = self.$t7.compile(template);
 
-        self.f7VirtualList = f7.virtualList(self.$el, {
-          items: self.virtualItems || [],
-          template: template,
-          height: self.virtualHeight || undefined,
-          cols: self.virtualCols,
-          rowsBefore: self.virtualRowsBefore || undefined,
-          rowsAfter: self.virtualRowsAfter || undefined,
-          showFilteredItemsOnly: self.virtualFilteredOnly,
-          searchByItem: self.virtualSearchByItem,
-          searchAll: self.virtualSearchAll,
-          onItemBeforeInsert: function (list, item) {
-            self.$emit('virtualItemBeforeInsert', list, item);
+        self.f7VirtualList = f7.virtualList.create(Utils.extend(
+          {
+            el: self.$el,
+            itemTemplate: template,
+            on: {
+              itemBeforeInsert(itemEl, item) {
+                const vl = this;
+                self.$emit('virtual:itembeforeinsert', vl, itemEl, item);
+              },
+              beforeClear(fragment) {
+                const vl = this;
+                self.$emit('virtual:beforeclear', vl, fragment);
+              },
+              itemsBeforeInsert(fragment) {
+                const vl = this;
+                self.$emit('virtual:itemsbeforeinsert', vl, fragment);
+              },
+              itemsAfterInsert(fragment) {
+                const vl = this;
+                self.$emit('virtual:itemsafterinsert', vl, fragment);
+              },
+            },
           },
-          onBeforeClear: function (list, fragment) {
-            self.$emit('virtualBeforeClear', list, fragment);
-          },
-          onItemsBeforeInsert: function (list, fragment) {
-            self.$emit('virtualItemsBeforeInsert', list, fragment);
-          },
-          onItemsAfterInsert: function (list, fragment) {
-            self.$emit('virtualItemsAfterInsert', list, fragment);
-          },
-        })
-      }
-    }
-  }
+          vlParams
+        ));
+      },
+    },
+  };
 </script>

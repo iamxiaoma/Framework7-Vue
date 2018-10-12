@@ -1,6 +1,17 @@
 <template>
-  <div class="statusbar-overlay"></div>
+  <div class="statusbar" :class="classes"></div>
 </template>
 <script>
-  export default {}
+  import Mixins from '../utils/mixins';
+
+  export default {
+    name: 'f7-statusbar',
+    props: Mixins.colorProps,
+    computed: {
+      classes() {
+        const self = this;
+        return Mixins.colorClasses(self);
+      },
+    },
+  };
 </script>
